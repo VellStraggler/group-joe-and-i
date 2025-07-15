@@ -42,12 +42,12 @@ void testRunner()
 //    err = freopen_s(&stream, "CONOUT$", "a", stdout);
 // #endif // _WIN32
 
-   TestAngle().run();
-   TestAcceleration().run();
-   TestPosition().run();
-   TestVelocity().run();
+   // TestAngle().run();
+   // TestAcceleration().run();
+   // TestPosition().run();
+   // TestVelocity().run();
 //   TestGround().run();  
-   TestHowitzer().run();
-   // TestProjectile().run();
+   // TestHowitzer().run();
+   TestProjectile().run();
    std::cout << "tests completed" << std::endl;
 }

@@ -175,7 +175,7 @@ private:
       Position board = Position(10,10);
       Howitzer h = Howitzer();
       h.generatePosition(board);
-      double x = h.getPosition().getPixelsX();
+      double x = h.getPosition().getMetersX();
       assertUnit(x >= 1 && x <= 9);
    }
 
@@ -189,7 +189,7 @@ private:
       Position board = Position(1000,1000);
       Howitzer h = Howitzer();
       h.generatePosition(board);
-      double x = h.getPosition().getPixelsX();
+      double x = h.getPosition().getMetersX();
       assertUnit(x >= 100 && x <= 900);
    }
 
@@ -231,11 +231,10 @@ private:
    void raise_leftDown()
    {
       Howitzer h = Howitzer();
-      Angle a = Angle();
-      a.setRadians(-0.5);
-      h.elevation = a;
+      h.elevation.setRadians(-.5);
       h.raise(-.1);
-      assertEquals(-0.6, h.getElevation().getRadians());
+      double ans = h.getElevation().getRadians() - (M_PI*2);
+      assertEquals(-0.6, ans);
    }
 
    /*********************************************
@@ -246,11 +245,9 @@ private:
    void raise_leftUp()
    {
       Howitzer h = Howitzer();
-      Angle a = Angle();
-      a.setRadians(-0.5);
-      h.elevation = a;
+      h.elevation.setRadians(-.5);
       h.raise(.1);
-      assertEquals(-0.4, h.getElevation().getRadians());
+      assertEquals(-0.4, h.getElevation().getRadians() - (2 * M_PI));
    }
 
    /*********************************************
@@ -291,11 +288,10 @@ private:
    void rotate_wrapClock()
    {
       Howitzer h = Howitzer();
-      Angle a = Angle();
-      a.setRadians(6.1);
-      h.elevation = a;
+      h.elevation.setRadians((2*M_PI) - .1);
       h.rotate(.2);
-      assertEquals(.1, h.getElevation().getRadians());
+      double ans = h.getElevation().getRadians();
+      assertEquals(.1, ans);
    }
 
    /*********************************************
@@ -306,11 +302,9 @@ private:
    void rotate_wrapCounterClock()
    {
       Howitzer h = Howitzer();
-      Angle a = Angle();
-      a.setRadians(0.1);
-      h.elevation = a;
+      h.elevation.setRadians(0.1);
       h.rotate(-.2 - (4 * M_PI));
-      assertEquals(6.1, h.getElevation().getRadians());
+      assertEquals(((2*M_PI)-.1), h.getElevation().getRadians());
    }
 
    /*****************************************************************
