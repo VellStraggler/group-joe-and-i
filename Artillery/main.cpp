@@ -9,8 +9,16 @@
 
 #include "test.h"
 #include "position.h"
+#include "simulation.h"
+#include "uiInteract.h"
 
-double Position::metersFromPixels = 40.0;
+double Position::metersFromPixels = 5.0;
+
+void callBack(const Interface* pUI, void* p)
+{
+    Simulator* pSim = static_cast<Simulator*>(p);
+    pSim->callBack(pUI, p);
+}
 
  /************************************
   * MAIN
@@ -19,8 +27,12 @@ double Position::metersFromPixels = 40.0;
 int main()
 {
    // run the test code.
-   std::cout << "help";
    testRunner();
+   Position pos(400,400);
+   Interface ui("Howitzer Sim", pos);
+   Simulator s = Simulator(pos);
+
+   ui.run(callBack, &s);
 
    // return success
    return 0;

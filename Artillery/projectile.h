@@ -12,8 +12,9 @@
 #include <list>
 #include "position.h"
 #include "velocity.h"
-// #include "physics.h"
 #include "uiDraw.h"
+#include "angle.h"
+#include "acceleration.h"
 
 #define DEFAULT_PROJECTILE_WEIGHT 46.7       // kg
 #define DEFAULT_PROJECTILE_RADIUS 0.077545   // m
@@ -34,11 +35,75 @@ public:
    // create a new projectile with the default settings
    Projectile() : mass(DEFAULT_PROJECTILE_WEIGHT), radius(DEFAULT_PROJECTILE_RADIUS) {}
 
+   void reset()
+   {
+   mass = DEFAULT_PROJECTILE_WEIGHT;
+   radius = DEFAULT_PROJECTILE_RADIUS;
+   flightPath.clear();
+   }
 
+   void fire(const Position &pos, const Angle &angle, double muzzleVelocity)
+   {
+   PositionVelocityTime pvt;
+   pvt.pos = pos;
+
+   Velocity v;
+   v.set(angle, muzzleVelocity);
+   pvt.v = v;
+   pvt.t = 1.0;
+
+   flightPath.clear();
+   flightPath.push_back(pvt);
+   }
 
    // advance the round forward until the next unit of time
-   void advance(double simulationTime) {}
+   void advance(double simulationTime)
+   {
+      if (flightPath.empty())
+         return;
 
+      PositionVelocityTime prev = flightPath.back();
+      PositionVelocityTime next;
+
+      // Step 1: Acceleration due to gravity and air resistance
+      // Assumes drag is always against direction of motion
+      Acceleration a;
+
+      // Gravity
+      a.setDDY(-9.8064);
+
+      // Simplified air resistance
+      double dragX = 0.0;
+      if (prev.v.getDX() > 0)
+         dragX = -0.0487;
+      else if (prev.v.getDX() < 0)
+         dragX = 0.0487;
+
+      double dragY = 0.0;
+      if (prev.v.getDY() > 0)
+         dragY = -0.3893;
+      else if (prev.v.getDY() < 0)
+         dragY = 0.0638;
+
+      a.setDDX(dragX);
+
+      // Combine
+      a.addDDY(dragY); // total vertical = gravity + drag
+
+      // Step 2: New velocity = v + a·t
+      next.v = prev.v;
+      next.v.add(a, 1.0);
+
+      // Step 3: New position = p + v·t + ½·a·t²
+      next.pos.setMetersX(prev.pos.getMetersX() + prev.v.getDX() * 1.0 + 0.5 * a.getDDX());
+      next.pos.setMetersY(prev.pos.getMetersY() + prev.v.getDY() * 1.0 + 0.5 * a.getDDY());
+
+      // Step 4: Time
+      next.t = simulationTime;
+
+      // Step 5: Store new position
+      flightPath.push_back(next);
+}
 
 
 

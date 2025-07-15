@@ -76,9 +76,12 @@ class Howitzer
 
       // get the elevation
       const Angle & getElevation() const { return elevation; }
-
+      void setElevation(double amtRadians) {
+         elevation.setRadians(amtRadians);
+      }
+      
    private:
       Position position;      // initial position of the projectile
       double muzzleVelocity;  // muzzle velocity, defaults to 827.0 m/s
       Angle elevation;        // the elevation of the howitzer where 0 is up and positive is right.
-};
+   };
