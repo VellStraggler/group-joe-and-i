@@ -1,0 +1,165 @@
+/*************************************************************
+ * 1. Name:
+ *      -your name-
+ * 2. Module
+ *      ANGLE
+ * 3. Assignment Description:
+ *      A class to represent an angle
+ **************************************************************/
+
+
+#pragma once
+#include <iostream>
+#include <cmath>
+constexpr double PI = 3.141592653589793238462643383279502;
+constexpr double TWO_PI = 6.283185307179586476925286766559005;
+
+class TestAngle;
+
+/************************************
+ * ANGLE
+ ************************************/
+class Angle
+{
+public:
+   friend TestAngle;
+
+
+   // Constructors
+   Angle() { radians = 0.0; }
+   Angle(const Angle& rhs) { radians = rhs.radians; }
+   Angle(double degrees) { radians = normalize(convertToRadians(degrees)); }
+
+   // Getters
+   double getDegrees() const { return convertToDegrees(radians); }
+   double getRadians() const { return radians; }
+
+   // Setters
+   void setDegrees(double degrees) { radians = normalize(convertToRadians(degrees)); }
+   void setRadians(double radians) { this->radians = normalize(radians); }
+
+   void setUp() { radians = 0.0; }
+   void setDown() { radians = PI; }
+   void setRight() { radians = (PI / 2.0); }
+   void setLeft() { radians = PI + (PI / 2.0); }
+   void reverse() { radians = normalize(radians + PI); }
+
+   Angle& add(double delta)
+   {
+      radians = normalize(radians + delta);
+      return *this;
+   }
+   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
+   /* Here are the problems we are meant to solve today: */
+   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
+
+   /*Assignment Operator*/
+   Angle& operator=(const Angle& rhs)
+   {
+      if (this != &rhs)
+         radians = rhs.radians;
+      return *this;
+   }
+
+   /*Negative Operator*/
+   Angle operator-() const
+   {
+      Angle result;
+      result.radians = normalize(radians + PI);
+      return result;
+   }
+
+   /*Equals and Not Equals*/
+   bool operator==(const Angle& rhs) const
+   {
+      return fabs(normalize(radians - rhs.radians)) < 0.1;
+   }
+
+   bool operator!=(const Angle& rhs) const
+   {
+      return !(*this == rhs);
+   }
+
+   // Postfix increment
+   Angle operator++(int)
+   {
+      Angle temp(*this);
+      radians = normalize(radians + (PI / 180.0));
+      return temp;
+   }
+
+   // Postfix decrement
+   Angle operator--(int)
+   {
+      Angle temp(*this);
+      radians = normalize(radians - (PI / 180.0));
+      return temp;
+   }
+
+
+   // Prefix increment
+   virtual Angle& operator++()
+   {
+      radians = normalize(radians + (PI / 180.0));
+      return *this;
+   }
+
+   // Prefix decrement
+   virtual Angle& operator--()
+   {
+      radians = normalize(radians - (PI / 180.0));
+      return *this;
+   }
+
+   // display helper
+   virtual void display(std::ostream& out) const
+   {
+      out.setf(std::ios::fixed);
+      out.precision(1);
+      out << getDegrees();
+   }
+
+   // stream extraction friend
+   friend std::istream& operator>>(std::istream& in, Angle& rhs)
+   {
+      double degrees;
+      in >> degrees;
+      if (!in.fail())
+         rhs.setDegrees(degrees);
+      return in;
+   }
+
+   // stream insertion friend
+   friend std::ostream& operator<<(std::ostream& out, const Angle& rhs)
+   {
+      rhs.display(out);
+      return out;
+   }
+
+
+
+protected:
+   double radians;
+
+   double normalize(double r) const
+   {
+      while (r < 0.0)
+         r += TWO_PI;
+      while (r >= TWO_PI)
+         r -= TWO_PI;
+      return r;
+   }
+
+   double convertToDegrees(double r) const
+   {
+      return normalize(r) * (180.0 / PI);
+   }
+
+   double convertToRadians(double d) const
+   {
+      return normalize(d * (PI / 180.0));
+   }
+};
+
+
+
