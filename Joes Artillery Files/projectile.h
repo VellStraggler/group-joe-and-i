@@ -42,7 +42,6 @@ public:
       flightPath.clear();
    }
 
-
    void fire(const Position& pos, const Angle& angle, double muzzleVelocity)
    {
       PositionVelocityTime pvt;
@@ -57,13 +56,6 @@ public:
       flightPath.push_back(pvt);
    }
 
-   void fire(const Position& pos, double degrees, double muzzleVelocity)
-   {
-      Angle angle;
-      angle.setDegrees(degrees);
-      fire(pos, angle, muzzleVelocity);
-   }
-
    // advance the round forward until the next unit of time
    void advance(double simulationTime)
    {
@@ -73,39 +65,43 @@ public:
       PositionVelocityTime prev = flightPath.back();
       PositionVelocityTime next;
 
-      // Gravity
-      const double gravity = -9.8064;
-
-      // Step 1: Compute speed
-      double speed = sqrt(prev.v.getDx() * prev.v.getDx() + prev.v.getDy() * prev.v.getDy());
-
-      // Step 2: Compute drag force = 0.5 * rho * Cd * A * v^2
-      // We'll use approximate constants for now
-      double airDensity = 1.225;         // kg/m^3
-      double dragCoefficient = 0.47;     // sphere
-      double area = M_PI * radius * radius;
-      double dragForce = 0.5 * airDensity * dragCoefficient * area * speed * speed;
-
-      // Step 3: Compute drag acceleration components
-      double dragAx = (speed > 0.0) ? (-dragForce * prev.v.getDx()) / (mass * speed) : 0.0;
-      double dragAy = (speed > 0.0) ? (-dragForce * prev.v.getDy()) / (mass * speed) : 0.0;
-
-      // Step 4: Total acceleration
+      // Step 1: Acceleration due to gravity and air resistance
+      // Assumes drag is always against direction of motion
       Acceleration a;
-      a.setDDX(dragAx);
-      a.setDDY(gravity + dragAy);
 
-      // Step 5: Update velocity
-      next.v.setDx(prev.v.getDx() + a.getDDX());
-      next.v.setDy(prev.v.getDy() + a.getDDY());
+      // Gravity
+      a.setDDY(-9.8064);
 
-      // Step 6: Update position
-      next.pos.setMetersX(prev.pos.getMetersX() + prev.v.getDx() + 0.5 * a.getDDX());
-      next.pos.setMetersY(prev.pos.getMetersY() + prev.v.getDy() + 0.5 * a.getDDY());
+      // Simplified air resistance
+      double dragX = 0.0;
+      if (prev.v.getDX() > 0)
+         dragX = -0.0487;
+      else if (prev.v.getDX() < 0)
+         dragX = 0.0487;
 
-      // Step 7: Time advance
-      next.t = prev.t + 1.0;
+      double dragY = 0.0;
+      if (prev.v.getDY() > 0)
+         dragY = -0.3893;
+      else if (prev.v.getDY() < 0)
+         dragY = 0.0638;
 
+      a.setDDX(dragX);
+
+      // Combine
+      a.addDDY(dragY); // total vertical = gravity + drag
+
+      // Step 2: New velocity = v + a·t
+      next.v = prev.v;
+      next.v.add(a, 1.0);
+
+      // Step 3: New position = p + v·t + ½·a·t²
+      next.pos.setMetersX(prev.pos.getMetersX() + prev.v.getDX() * 1.0 + 0.5 * a.getDDX());
+      next.pos.setMetersY(prev.pos.getMetersY() + prev.v.getDY() * 1.0 + 0.5 * a.getDDY());
+
+      // Step 4: Time
+      next.t = simulationTime;
+
+      // Step 5: Store new position
       flightPath.push_back(next);
    }
 
@@ -120,8 +116,6 @@ public:
       Velocity v;
       double t;
    };
-
-
 
    double mass;           // weight of the M795 projectile. Defaults to 46.7 kg
    double radius;         // radius of M795 projectile. Defaults to 0.077545 m
