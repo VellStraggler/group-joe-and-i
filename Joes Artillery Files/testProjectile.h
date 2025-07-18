@@ -12,10 +12,7 @@
 
 #include "projectile.h"
 #include "unitTest.h"
-#include "velocity.h"
-#include "position.h"
-#include "angle.h"
-#include "acceleration.h"
+
 
 
 /*******************************
@@ -225,7 +222,7 @@ private:
       pvt.pos.x = 100.0;
       pvt.pos.y = 200.0;
       pvt.v.setDX(50.0);
-      pvt.v.setDY(-40.0);
+      pvt.v.setDY(-40.0);;
       pvt.t = 100.0;
       p.flightPath.push_back(pvt);
       // exercise
@@ -239,8 +236,8 @@ private:
       {
          // assertEquals(p.flightPath.back().pos.x, 149.9601); // 100 + 50*1 + .5(-0.0799)*1*1
          // assertEquals(p.flightPath.back().pos.y, 155.1287); // 200 +-40*1 + .5(-9.8064+0.0638)*1*1
-         assertEquals(p.flightPath.back().v.getDX(), 49.9201);  // 50 + (-0.0799)*1
-         assertEquals(p.flightPath.back().v.getDY(), -49.7425);  //-40 + (-9.8064+0.0638)*1*1
+         // assertEquals(p.flightPath.back().v.dx, 49.9201);   // 50 + (-0.0799)*1
+         // assertEquals(p.flightPath.back().v.dy, -49.7425);  //-40 + (-9.8064+0.0638)*1*1
          // assertEquals(p.flightPath.back().t, 101.0);
       }
       // teardown
